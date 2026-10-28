@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "method": "RIA2C",
+  "seed": 42,
+  "classes": [
+    "Accessory tools",
+    "Barrett's esophagus",
+    "Blood in lumen",
+    "Cecum",
+    "Colon diverticula",
+    "Colon polyps",
+    "Colorectal cancer",
+    "Duodenal bulb",
+    "Dyed-lifted-polyps",
+    "Dyed-resection-margins",
+    "Esophagitis",
+    "Gastric polyps",
+    "Gastroesophageal_junction_normal z-line",
+    "Ileocecal valve",
+    "Mucosal inflammation large bowel",
+    "Normal esophagus",
+    "Normal mucosa and vascular pattern in the large bowel",
+    "Normal stomach",
+    "Pylorus",
+    "Resected polyps",
+    "Retroflex rectum",
+    "Small bowel_terminal ileum"
+  ],
+  "models": [
+    "xcit_small",
+    "vit_base_b16",
+    "maxvit_tiny",
+    "swin_tiny"
+  ],
+  "mobius_terms": [
+    "m1",
+    "m2",
+    "m3",
+    "m4",
+    "m12",
+    "m13",
+    "m14",
+    "m23",
+    "m24",
+    "m34"
+  ],
+  "mobius": [
+    0.36508632042034156,
+    0.38470873884813683,
+    0.30861667033100804,
+    0.2926736034058513,
+    -0.032416348103044314,
+    -0.0657709515533799,
+    -0.04981973333358296,
+    -0.0575414416005169,
+    -0.06989101716604622,
+    -0.07564584124876743
+  ],
+  "checkpoints": [
+    {
+      "model": "xcit_small",
+      "fold": 0,
+      "architecture": "xcit_small_12_p16_224.fb_dist_in1k",
+      "filename": "development_cv5_all6_v1_fold0_xcit_small_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold0_xcit_small_best_stable_gap010.pt",
+      "sha256": "abe6aa3044a8284faf671fd31554790b9a483d81e02a1c4e067bf834c9eb7e35",
+      "bytes": 103714044
+    },
+    {
+      "model": "xcit_small",
+      "fold": 1,
+      "architecture": "xcit_small_12_p16_224.fb_dist_in1k",
+      "filename": "development_cv5_all6_v1_fold1_xcit_small_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold1_xcit_small_best_stable_gap010.pt",
+      "sha256": "e445c0b261fe3429977e3ecbe05ba0bc8c9afebf55631ca85d1a0791f39a386f",
+      "bytes": 103714044
+    },
+    {
+      "model": "xcit_small",
+      "fold": 2,
+      "architecture": "xcit_small_12_p16_224.fb_dist_in1k",
+      "filename": "development_cv5_all6_v1_fold2_xcit_small_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold2_xcit_small_best_stable_gap010.pt",
+      "sha256": "ed889c67bff9d4164f6d283ff212f28666b5b2b81b80593394f6d7bdb5af7ed4",
+      "bytes": 103714044
+    },
+    {
+      "model": "xcit_small",
+      "fold": 3,
+      "architecture": "xcit_small_12_p16_224.fb_dist_in1k",
+      "filename": "development_cv5_all6_v1_fold3_xcit_small_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold3_xcit_small_best_stable_gap010.pt",
+      "sha256": "35c7df041f86f2bb3395f9437783ec95db118ebefd32765ec959baef4ccb20b2",
+      "bytes": 103714044
+    },
+    {
+      "model": "xcit_small",
+      "fold": 4,
+      "architecture": "xcit_small_12_p16_224.fb_dist_in1k",
+      "filename": "development_cv5_all6_v1_fold4_xcit_small_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold4_xcit_small_best_stable_gap010.pt",
+      "sha256": "04f465146eaed741dc9ac8dce501fc3d155d7d649017297c1c985e5e2381fef8",
+      "bytes": 103714044
+    },
+    {
+      "model": "vit_base_b16",
+      "fold": 0,
+      "architecture": "vit_base_patch16_224.augreg2_in21k_ft_in1k",
+      "filename": "development_cv5_all6_v1_fold0_vit_base_b16_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold0_vit_base_b16_best_stable_gap010.pt",
+      "sha256": "fd47ae4cd9cffde10c6d05f3901c25ecb7067d8eb8187120738390cde258c7fe",
+      "bytes": 343334653
+    },
+    {
+      "model": "vit_base_b16",
+      "fold": 1,
+      "architecture": "vit_base_patch16_224.augreg2_in21k_ft_in1k",
+      "filename": "development_cv5_all6_v1_fold1_vit_base_b16_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold1_vit_base_b16_best_stable_gap010.pt",
+      "sha256": "617d8cfead4a6f20f1683286bbe0cec87d3955f8cd11ca270afa3a5d23028196",
+      "bytes": 343334653
+    },
+    {
+      "model": "vit_base_b16",
+      "fold": 2,
+      "architecture": "vit_base_patch16_224.augreg2_in21k_ft_in1k",
+      "filename": "development_cv5_all6_v1_fold2_vit_base_b16_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold2_vit_base_b16_best_stable_gap010.pt",
+      "sha256": "7559473bb2277ec1ce1d27f0a7c7a2719df832096bb03b4581fc2c2751600f5c",
+      "bytes": 343334653
+    },
+    {
+      "model": "vit_base_b16",
+      "fold": 3,
+      "architecture": "vit_base_patch16_224.augreg2_in21k_ft_in1k",
+      "filename": "development_cv5_all6_v1_fold3_vit_base_b16_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold3_vit_base_b16_best_stable_gap010.pt",
+      "sha256": "eca7980e65a867855f2b5dfe1e4becb607e211ba4514633ce7d74de2d4a92286",
+      "bytes": 343334653
+    },
+    {
+      "model": "vit_base_b16",
+      "fold": 4,
+      "architecture": "vit_base_patch16_224.augreg2_in21k_ft_in1k",
+      "filename": "development_cv5_all6_v1_fold4_vit_base_b16_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold4_vit_base_b16_best_stable_gap010.pt",
+      "sha256": "cf525a83daaa4d0db4fa78c346b787c11c02cc6746e3eb21534331a874043acd",
+      "bytes": 343334653
+    },
+    {
+      "model": "maxvit_tiny",
+      "fold": 0,
+      "architecture": "maxvit_tiny_rw_224.sw_in1k",
+      "filename": "development_cv5_all6_v1_fold0_maxvit_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold0_maxvit_tiny_best_stable_gap010.pt",
+      "sha256": "f16a9354b32b8ee747ed5d0dc92044e3d91a952d3f7d9f18e74c01383e782bf7",
+      "bytes": 114642659
+    },
+    {
+      "model": "maxvit_tiny",
+      "fold": 1,
+      "architecture": "maxvit_tiny_rw_224.sw_in1k",
+      "filename": "development_cv5_all6_v1_fold1_maxvit_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold1_maxvit_tiny_best_stable_gap010.pt",
+      "sha256": "066a74bf80132acd28a599212b4154df62cecbeff89887ce282edacab0dead76",
+      "bytes": 114642659
+    },
+    {
+      "model": "maxvit_tiny",
+      "fold": 2,
+      "architecture": "maxvit_tiny_rw_224.sw_in1k",
+      "filename": "development_cv5_all6_v1_fold2_maxvit_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold2_maxvit_tiny_best_stable_gap010.pt",
+      "sha256": "f75cb8c8f4f58a642d19e4eab17dcd0d72a1a34e201dc0a50652ff1c60480c39",
+      "bytes": 114642659
+    },
+    {
+      "model": "maxvit_tiny",
+      "fold": 3,
+      "architecture": "maxvit_tiny_rw_224.sw_in1k",
+      "filename": "development_cv5_all6_v1_fold3_maxvit_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold3_maxvit_tiny_best_stable_gap010.pt",
+      "sha256": "d0ad7f8216a65f43390636056d5a876407d6cfe43fb5df5397d13322c0fb6a45",
+      "bytes": 114642659
+    },
+    {
+      "model": "maxvit_tiny",
+      "fold": 4,
+      "architecture": "maxvit_tiny_rw_224.sw_in1k",
+      "filename": "development_cv5_all6_v1_fold4_maxvit_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold4_maxvit_tiny_best_stable_gap010.pt",
+      "sha256": "be39e942f44950bcb43bab8d84aecef1d8e6b258f12e3ca65796220240c1ddec",
+      "bytes": 114642659
+    },
+    {
+      "model": "swin_tiny",
+      "fold": 0,
+      "architecture": "swin_tiny_patch4_window7_224.ms_in1k",
+      "filename": "development_cv5_all6_v1_fold0_swin_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold0_swin_tiny_best_stable_gap010.pt",
+      "sha256": "9fc39a2d6f79e2f03ce3a2af7d0a3f08f85cbad456e4f29efd44d2459b765b8d",
+      "bytes": 110227367
+    },
+    {
+      "model": "swin_tiny",
+      "fold": 1,
+      "architecture": "swin_tiny_patch4_window7_224.ms_in1k",
+      "filename": "development_cv5_all6_v1_fold1_swin_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold1_swin_tiny_best_stable_gap010.pt",
+      "sha256": "4e048b4fd00d088db10bee973b9c20f135a1f95d74ac2f05afcb2c5417cd72ce",
+      "bytes": 110227367
+    },
+    {
+      "model": "swin_tiny",
+      "fold": 2,
+      "architecture": "swin_tiny_patch4_window7_224.ms_in1k",
+      "filename": "development_cv5_all6_v1_fold2_swin_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold2_swin_tiny_best_stable_gap010.pt",
+      "sha256": "4244e7089581b7c9b57cce78b5c4f6dcd983f4134c1c2f1ce56e4beba0af9318",
+      "bytes": 110227367
+    },
+    {
+      "model": "swin_tiny",
+      "fold": 3,
+      "architecture": "swin_tiny_patch4_window7_224.ms_in1k",
+      "filename": "development_cv5_all6_v1_fold3_swin_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold3_swin_tiny_best_stable_gap010.pt",
+      "sha256": "89b14527b9fb55e9c4a22c7b5dda176c2a1c7d16500d558842dd834af479d9c1",
+      "bytes": 110227367
+    },
+    {
+      "model": "swin_tiny",
+      "fold": 4,
+      "architecture": "swin_tiny_patch4_window7_224.ms_in1k",
+      "filename": "development_cv5_all6_v1_fold4_swin_tiny_best_stable_gap010.pt",
+      "local_relative_path": "artifacts/locked_official_test_v1/development_cv5_all6_v1/checkpoints/development_cv5_all6_v1_fold4_swin_tiny_best_stable_gap010.pt",
+      "sha256": "02a76e32e0a6e6010c0dd2b7b38298ad63165aa01a82cd5698c518fe3b40948f",
+      "bytes": 110227367
+    }
+  ],
+  "preprocessing": {
+    "resize_short_edge": 256,
+    "center_crop": 224,
+    "RGB": true,
+    "interpolation": "bilinear",
+    "mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "aggregation": "softmax each checkpoint, arithmetic mean of five fold probabilities for each backbone, raw 2-additive Choquet, argmax",
+  "source": {
+    "capacity": "artifacts/final_results_and_paper_figures_v1/final_locked_ria2c_test_evaluation/tables/ria2c_final_refit_capacity.csv",
+    "capacity_sha256": "a082a435fe0a17bbdd6d9ba2a32437b5342c120980bdb350171d9adf72bbf1af",
+    "class_mapping_source": "Development metadata, verified locked XAI protocol",
+    "protocol": "fixed seed42 M4, capacity fit on full Development before locked Test"
+  }
+}

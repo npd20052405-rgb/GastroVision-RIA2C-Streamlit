@@ -1,0 +1,13 @@
+.git
+__pycache__
+models
+data
+artifacts
+reports
+*.pt
+*.pth
+*.jpg
+*.png
+*.jpeg
+.streamlit/secrets.toml
+.env*

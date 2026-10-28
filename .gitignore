@@ -1,0 +1,22 @@
+# Chỉ đưa mã và manifest lên Git; không đưa ảnh, trọng số hoặc khóa truy cập.
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.*
+.streamlit/secrets.toml
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+models/
+data/
+artifacts/
+reports/
+outputs/
+logs/
+*.zip
+*.png
+*.jpg
+*.jpeg
