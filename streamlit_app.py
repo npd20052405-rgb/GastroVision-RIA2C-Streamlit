@@ -751,7 +751,7 @@ def main():
             item, p, job = selection
             mode_label = st.radio("Lớp mục tiêu", ["Lớp RIA2C dự đoán", "Lớp dự đoán riêng của từng backbone"], key="xai_mode", horizontal=True)
             mode = "ria" if mode_label == "Lớp RIA2C dự đoán" else "own"
-            signature = (item["sha256"], job["manifest"], mode)
+            signature = (item["sha256"], job["manifest"], mode, digest(np.ascontiguousarray(p).tobytes()))
             st.caption("Theo RIA2C: bốn CAM cùng giải thích lớp RIA2C chọn. Theo backbone: mỗi CAM giải thích lớp dự đoán riêng, có thể khác nhau.")
             if st.button("Tạo Grad-CAM", type="primary", disabled=not ready or job["manifest"] != cfg["fingerprint"], key="create_cam"):
                 bar = st.progress(0.0, text="Chuẩn bị gradient…")
