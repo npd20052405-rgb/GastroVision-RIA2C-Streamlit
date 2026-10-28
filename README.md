@@ -16,6 +16,8 @@ python -m streamlit run streamlit_app.py
 
 Mở `http://127.0.0.1:8501`. Môi trường local đã có torch 2.7.1+cu118, torchvision 0.22.1+cu118 và timm 1.0.19. Không cần cài lại các thư viện CUDA đang hoạt động.
 
+Gói cài mới dùng Pillow11.3.0 để thỏa điều kiện `pillow<12` của Streamlit1.44.1. Môi trường nghiên cứu hiện có Pillow12.3.0 được giữ nguyên; đã kiểm tra riêng Pillow11.3.0 và xác nhận tensor tiền xử lý của cùng22 ảnh giống từng phần tử (sai khác0). Đây là kiểm tra tương thích trên mẫu, không bảo đảm mọi phiên bản JPEG decoder trên mọi hệ điều hành đều bitwise giống nhau.
+
 Nếu cài môi trường mới từ mã nguồn nghiên cứu:
 
 ```powershell
