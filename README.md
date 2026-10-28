@@ -1,9 +1,3 @@
----
-title: GastroVision AI - RIA2C
-sdk: docker
-app_port: 7860
----
-
 # GastroVision AI — RIA2C M=4
 
 Ứng dụng nghiên cứu phân loại ảnh nội soi đường tiêu hóa 22 lớp. Toàn bộ mã Python ứng dụng và bộ tự kiểm thử nằm trong **`streamlit_app.py`**. Không dùng để chẩn đoán, xác nhận tổn thương hoặc đề xuất điều trị.
@@ -18,19 +12,9 @@ Mở `http://127.0.0.1:8501`. Môi trường local đã có torch 2.7.1+cu118, t
 
 Gói cài mới dùng Pillow11.3.0 để thỏa điều kiện `pillow<12` của Streamlit1.44.1. Môi trường nghiên cứu hiện có Pillow12.3.0 được giữ nguyên; đã kiểm tra riêng Pillow11.3.0 và xác nhận tensor tiền xử lý của cùng22 ảnh giống từng phần tử (sai khác0). Đây là kiểm tra tương thích trên mẫu, không bảo đảm mọi phiên bản JPEG decoder trên mọi hệ điều hành đều bitwise giống nhau.
 
-Nếu cài môi trường mới từ mã nguồn nghiên cứu:
-
-```powershell
-python -m pip install -r deploy/requirements.txt
-```
-
-Trong gói xuất bản riêng, `requirements.txt` nằm ngay thư mục gốc. Với GPU CUDA11.8, cài torch/torchvision từ chỉ mục chính thức trước:
-
-```text
-python -m pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu118
-python -m pip install -r requirements.txt
-python -m streamlit run streamlit_app.py
-```
+Nếu cài môi trường CPU mới: `python -m pip install -r deploy/requirements.txt`.
+Môi trường CUDA 11.8 mới dùng `deploy/requirements-cuda.txt`; không cài requirements CPU đè lên môi trường CUDA đang hoạt động.
+Trong gói GitHub, hai requirements nằm ngay thư mục gốc.
 
 ## Trọng số và cấu hình bắt buộc
 
@@ -87,18 +71,36 @@ python streamlit_app.py --self-test --report-dir reports/local_check_NEW_UNIQUE_
 
 Chọn thư mục chưa tồn tại. Bộ thử dùng22 ảnh thật đã có kết quả tham chiếu, thêm file hỏng; suy luận đơn/lô, đối chiếu bốn backbone và RIA2C,484 phân rã Möbius, hai chế độCAM, so sánh CAM với bốn hình nghiên cứu, kiểm tra AppTest/rerun. Đây là kiểm tra tái lập ứng dụng trên mẫu minh họa, không phải benchmark hay đánh giá nested mới. Gói public không kèm dữ liệu nên không tự chạy bộ kiểm thử nghiên cứu này.
 
-## Docker và trạng thái cloud
+## Streamlit Community Cloud miễn phí và trọng số riêng tư
 
-Từ gói xuất bản có `Dockerfile` ở thư mục gốc:
+Repository mã nguồn: https://github.com/npd20052405-rgb/GastroVision-RIA2C-Streamlit
+
+Triển khai nhánh `main`, file `streamlit_app.py`, Python 3.11. `requirements.txt` cài PyTorch CPU, không yêu cầu GPU, gói trả phí hoặc Git LFS.
+20 checkpoint gốc được lưu dưới dạng Release assets trong repository private `npd20052405-rgb/GastroVision-RIA2C-Weights`, tag `ria2c-seed42-m4-v1`.
+Không có ảnh nội soi/dataset trong repository công khai.
+
+Trong Advanced settings → Secrets, người sở hữu tự nhập:
+
+```toml
+RIA2C_WEIGHTS_REPO = "npd20052405-rgb/GastroVision-RIA2C-Weights"
+RIA2C_WEIGHTS_TAG = "ria2c-seed42-m4-v1"
+RIA2C_GITHUB_TOKEN = "TOKEN_RIENG_TU_CHI_NHAP_TRONG_SECRETS"
+```
+
+Tạo fine-grained GitHub token chỉ chọn kho trọng số trên, cấp **Contents: Read-only**, đặt ngày hết hạn phù hợp. Không cấp quyền ghi hoặc toàn bộ repository. Không gửi token qua chat, commit vào Git, README hay ảnh chụp màn hình. Mẫu cấu hình không chứa token thật ở `.streamlit/secrets.example.toml`.
+
+Khi ứng dụng khởi động, nhấn “Tải và xác minh 20 checkpoint”. Mỗi file được kiểm tra dung lượng, GitHub asset digest và SHA-256 trong manifest trước khi nạp. Token chỉ nằm phía server; không chuyển header Authorization sang CDN khi redirect. File tải lưu trong cache tạm của server, ảnh người dùng chỉ giữ trong phiên. Cache có thể mất sau khi Cloud ngủ/khởi động lại nên cần tải lại ~3,36 GB. Không tự chuyển trọng số thành public.
+
+**Giới hạn:** CPU miễn phí có hạn mức RAM/tài nguyên và có thể ngủ; kiểm thử local không bảo đảm Cloud chạy được toàn bộ lô/Grad-CAM hoặc nhiều người đồng thời. Nếu vượt hạn mức, báo lỗi và dùng local; không tự nâng cấp, mua GPU hay thay đổi phương pháp để lách giới hạn. Chỉ xác nhận website hoạt động sau khi kiểm tra suy luận thật trên endpoint công khai.
+
+Docker tùy chọn cho CPU (chưa được build/kiểm thử Docker):
 
 ```text
 docker build -t gastrovision-ria2c .
-docker run --rm --gpus all -p 7860:7860 -v /absolute/path/to/weights:/models:ro gastrovision-ria2c
+docker run --rm -p 7860:7860 -v /absolute/path/to/weights:/models:ro gastrovision-ria2c
 ```
 
-Bỏ `--gpus all` để chạyCPU. Chưa build Docker trên máy local thì không coi image đã được kiểm thử. Hugging Face Spaces Docker cần cung cấp trọng số hợp lệ tại runtime; gói này không tự tải hoặc công khai checkpoint. Không cài token vào code hoặc Dockerfile. Dùng secrets/volume của hạ tầng đã được phê duyệt.
-
-Chưa có website công khai chỉ nhờ đưa code lên GitHub. Chỉ tuyên bố triển khai thành công sau khi endpoint bên ngoài nạp đủ20 checkpoint và qua thử đơn/lô thật. Không tự kích hoạt GPU trả phí. Xem báo cáo bàn giao để biết trạng thái kiểm thử local, tài nguyên và phần cần cấp quyền.
+Không kích hoạt Hugging Face Spaces hoặc bất kỳ dịch vụ trả phí nào trong phương án này.
 
 ## Dữ liệu, quyền sử dụng và giới hạn
 

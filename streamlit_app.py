@@ -11,8 +11,13 @@ import json
 import math
 import os
 import platform
+import re
+import tempfile
 import threading
 import time
+import urllib.error
+import urllib.parse
+import urllib.request
 import warnings
 import zipfile
 from contextlib import nullcontext
@@ -53,6 +58,78 @@ def file_digest(path: Path) -> str:
         for block in iter(lambda: f.read(4 * 1024**2), b""):
             h.update(block)
     return h.hexdigest()
+
+
+class GitHubAssetRedirect(urllib.request.HTTPRedirectHandler):
+    """Không chuyển token GitHub sang host chứa asset có URL ký tạm thời."""
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        parsed = urllib.parse.urlsplit(newurl)
+        host = parsed.hostname or ""
+        if parsed.scheme != "https" or not (host in {"api.github.com", "github.com"} or host.endswith(".githubusercontent.com")):
+            raise AppError("GitHub chuyển hướng tải trọng số tới host không được phép.")
+        redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if redirected is not None:
+            redirected.remove_header("Authorization")
+        return redirected
+
+
+def github_release_assets(repo: str, tag: str, token: str) -> dict:
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise AppError("Repository trọng số không hợp lệ.")
+    url = "https://api.github.com/repos/" + repo + "/releases/tags/" + urllib.parse.quote(tag, safe="")
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token, "Accept": "application/vnd.github+json",
+                                              "User-Agent": "GastroVision-RIA2C", "X-GitHub-Api-Version": "2022-11-28"})
+    try:
+        with urllib.request.urlopen(req, timeout=60) as response:
+            payload = json.load(response)
+    except (OSError, ValueError) as e:
+        raise AppError("Không đọc được Release riêng tư. Kiểm tra repository, tag và quyền Contents: Read-only của token.") from e
+    return {v["name"]: v for v in payload.get("assets", [])}
+
+
+def download_checkpoint(record: dict, assets: dict, repo: str, token: str, destination: Path, progress=None):
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo):
+        raise AppError("Repository trọng số không hợp lệ.")
+    asset = assets.get(record["filename"])
+    if not asset or asset.get("state") != "uploaded" or asset.get("size") != record["bytes"] or asset.get("digest") != "sha256:" + record["sha256"]:
+        raise AppError(f"Release thiếu hoặc sai hash/dung lượng: {record['filename']}.")
+    if destination.exists():
+        raise AppError("Đích tải trọng số đã tồn tại; không ghi đè.")
+    url = f"https://api.github.com/repos/{repo}/releases/assets/{int(asset['id'])}"
+    req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token, "Accept": "application/octet-stream",
+                                              "User-Agent": "GastroVision-RIA2C", "X-GitHub-Api-Version": "2022-11-28"})
+    temporary = None
+    try:
+        opener = urllib.request.build_opener(GitHubAssetRedirect())
+        with opener.open(req, timeout=180) as response, tempfile.NamedTemporaryFile(dir=destination.parent, prefix=record["filename"] + ".", suffix=".part", delete=False) as f:
+            temporary = Path(f.name)
+            h, size, last_update = hashlib.sha256(), 0, 0.0
+            while True:
+                block = response.read(4 * 1024**2)
+                if not block:
+                    break
+                size += len(block)
+                if size > record["bytes"]:
+                    raise AppError("Nội dung tải vượt dung lượng checkpoint đã khóa.")
+                f.write(block)
+                h.update(block)
+                if progress and time.monotonic() - last_update >= .25:
+                    progress(size / record["bytes"])
+                    last_update = time.monotonic()
+        if size != record["bytes"] or h.hexdigest() != record["sha256"]:
+            raise AppError("SHA-256 của trọng số tải về không khớp; không sử dụng file.")
+        if destination.exists():
+            raise AppError("Đích vừa được tạo bởi tiến trình khác; không ghi đè.")
+        os.replace(temporary, destination)
+        temporary = None
+    except AppError:
+        raise
+    except (OSError, ValueError) as e:
+        # Không hiện token, URL có chữ ký hoặc nội dung trả về vào giao diện/log báo cáo.
+        raise AppError("Không tải xong checkpoint. Các file đã xác minh vẫn được giữ; có thể thử lại.") from e
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
 
 
 def read_manifest(path: str | Path | None = None) -> dict:
@@ -191,12 +268,41 @@ def csv_bytes(frame: pd.DataFrame) -> bytes:
 
 class Engine:
     """Một khóa GPU dùng chung; không giữ mô hình/checkpoint trong cache."""
-    def __init__(self, cfg: dict, model_dir: str | None = None):
+    def __init__(self, cfg: dict, model_dir: str | None = None, weights_repo="", weights_tag="", token=""):
         self.cfg = cfg
         self.model_dir = model_dir if model_dir is not None else os.environ.get("RIA2C_MODEL_DIR", "")
+        self.weights_repo = weights_repo
+        self.weights_tag = weights_tag
+        self._download_token = token
+        if weights_repo and not self.model_dir:
+            self.model_dir = str(Path(tempfile.gettempdir()) / "gastrovision-ria2c" / cfg["fingerprint"][:16])
         self.lock = threading.RLock()
         self.verified: dict = {}
         self.inference_calls = 0
+
+    def prepare_weights(self, progress=None):
+        """Tải đúng Release riêng tư đã chỉ định, xác minh từng file trước khi sử dụng."""
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", self.weights_repo or "") or not self.weights_tag:
+            raise AppError("Chưa cấu hình repository/tag của bộ trọng số riêng tư.")
+        if not self._download_token:
+            raise AppError("Thiếu quyền đọc kho trọng số. Đặt token trong Secrets, không nhập vào ảnh hoặc mã nguồn.")
+        with self.lock:
+            assets = github_release_assets(self.weights_repo, self.weights_tag, self._download_token)
+            directory = Path(self.model_dir)
+            directory.mkdir(parents=True, exist_ok=True)
+            for index, record in enumerate(self.cfg["checkpoints"]):
+                path = self.path(record)
+                if path.exists():
+                    if path.stat().st_size != record["bytes"] or file_digest(path) != record["sha256"]:
+                        raise AppError(f"File {record['filename']} đã tồn tại nhưng khác manifest; không tự ghi đè checkpoint.")
+                else:
+                    download_checkpoint(record, assets, self.weights_repo, self._download_token, path,
+                                        (lambda fraction, i=index, r=record: progress((i + fraction) / 20, f"Tải và xác minh {r['model']} · fold {r['fold'] + 1}/5")) if progress else None)
+                stat = path.stat()
+                self.verified[(str(path), stat.st_size, stat.st_mtime_ns)] = True
+                if progress:
+                    progress((index + 1) / 20, f"Đã xác minh {index + 1}/20 checkpoint")
+            self.preflight(verify=True)
 
     def path(self, record: dict) -> Path:
         return Path(self.model_dir) / record["filename"] if self.model_dir else ROOT / record["local_relative_path"]
@@ -608,11 +714,24 @@ def main():
         st.error(str(e))
         st.stop()
 
-    @st.cache_resource(show_spinner=False)
-    def resource(manifest_text, model_dir):
-        return Engine(json.loads(manifest_text), model_dir)
+    def setting(name, default=""):
+        if os.environ.get(name):
+            return os.environ[name]
+        try:
+            return str(st.secrets.get(name, default))
+        except (FileNotFoundError, KeyError):
+            return default
 
-    engine = resource(json.dumps(cfg, ensure_ascii=False, sort_keys=True), os.environ.get("RIA2C_MODEL_DIR", ""))
+    weights_repo = setting("RIA2C_WEIGHTS_REPO")
+    weights_tag = setting("RIA2C_WEIGHTS_TAG", "ria2c-seed42-m4-v1")
+    token = setting("RIA2C_GITHUB_TOKEN")
+
+    @st.cache_resource(show_spinner=False)
+    def resource(manifest_text, model_dir, repo, tag, credential_revision, _token):
+        return Engine(json.loads(manifest_text), model_dir, repo, tag, _token)
+
+    engine = resource(json.dumps(cfg, ensure_ascii=False, sort_keys=True), setting("RIA2C_MODEL_DIR"), weights_repo,
+                      weights_tag, digest(token.encode()) if token else "", _token=token)
     with st.sidebar:
         st.subheader("RIA2C · M=4")
         st.write("XCiT-Small · ViT-B/16\n\nMaxViT-Tiny · Swin-Tiny")
@@ -634,6 +753,19 @@ def main():
         ready = False
         st.error(str(e))
         st.info("Không có chế độ giả lập hoặc dự đoán mặc định. Hãy cung cấp đủ trọng số đã khóa rồi khởi động lại.")
+        if weights_repo and token:
+            st.caption("Đã cấu hình kho trọng số riêng tư. Lần đầu cần tải khoảng 3,36 GB; các lần sau dùng cache đã xác minh.")
+            if st.button("Tải và xác minh 20 checkpoint", type="primary", key="prepare_cloud_weights"):
+                bar = st.progress(0.0, text="Đọc Release trọng số riêng tư…")
+                try:
+                    engine.prepare_weights(lambda fraction, message: bar.progress(fraction, text=message))
+                    st.rerun()
+                except AppError as error:
+                    st.error(str(error))
+                finally:
+                    bar.empty()
+        elif weights_repo:
+            st.warning("Kho trọng số là Private: người quản trị cần đặt RIA2C_GITHUB_TOKEN trong Secrets; không nhập token vào giao diện công khai.")
     tabs = st.tabs(["Một ảnh", "Hàng loạt", "Grad-CAM", "Cơ chế RIA2C", "Nghiên cứu & hướng dẫn"])
 
     def parse_uploads(files, archive=None, key="parsed"):
