@@ -44,8 +44,8 @@ MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES, MAX_PIXELS = 128, 20 * 1024**2, 160 
 Image.MAX_IMAGE_PIXELS = MAX_PIXELS
 
 
-class AppError(RuntimeError):
-    """Lỗi có thông báo rõ ràng cho người sử dụng."""
+# Built-in identity stays stable when Streamlit reruns reuse a cached Engine.
+AppError = RuntimeError
 
 
 def digest(data: bytes) -> str:
